@@ -242,9 +242,14 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 #pragma mark - Keychain
 
+- (NSString *)keychainServiceName
+{
+    return SMKLastFMServiceName;
+}
+
 - (void)_storeCredentialsWithUsername:(NSString*)username sessionKey:(NSString*)key error:(NSError**)error
 {
-    if ([SSKeychain setPassword:key forService:SMKLastFMServiceName account:username error:error])
+    if ([SSKeychain setPassword:key forService:[self keychainServiceName] account:username error:error])
         _username = username;
 }
 @end
