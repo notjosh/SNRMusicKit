@@ -11,7 +11,8 @@
 #import "NSString+SMKAdditions.h"
 #import "SSKeychain.h"
 
-static NSString* const SMKLastFMHTTClientBaseURL = @"http://ws.audioscrobbler.com/2.0/";
+static NSString* const SMKLastFMHTTPClientBaseURL = @"http://ws.audioscrobbler.com/2.0/";
+static NSString* const SMKLastFMHTTPClientAuthBaseURL = @"http://www.last.fm/api/auth/";
 static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 @implementation SMKLastFMClient {
@@ -22,7 +23,7 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 - (id)init
 {
-    if ((self = [super initWithBaseURL:[NSURL URLWithString:SMKLastFMHTTClientBaseURL]])) {
+    if ((self = [super initWithBaseURL:[NSURL URLWithString:SMKLastFMHTTPClientBaseURL]])) {
         [self setParameterEncoding:AFJSONParameterEncoding];
         [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
         [self setDefaultHeader:@"Accept" value:@"application/json"];
@@ -35,7 +36,7 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
     static SMKLastFMClient *client;
     static dispatch_once_t token;
     dispatch_once(&token, ^{
-        client = [[SMKLastFMClient alloc] init];
+        client = [[self alloc] init];
     });
     return client;
 }
@@ -75,7 +76,7 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 - (NSURL*)webAuthenticationURLWithCallbackURL:(NSURL*)callback
 {
-    NSMutableString *URLString = [NSMutableString stringWithFormat:@"%@?api_key=%@", SMKLastFMHTTClientBaseURL, self.APIKey];
+    NSMutableString *URLString = [NSMutableString stringWithFormat:@"%@?api_key=%@", SMKLastFMHTTPClientAuthBaseURL, self.APIKey];
     if (callback) { [URLString appendFormat:@"&cb=%@", callback]; }
     return [NSURL URLWithString:URLString];
 }
@@ -93,7 +94,7 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 - (NSURL*)authenticationURLWithToken:(NSString*)token
 {
-	NSString *URLString = [NSString stringWithFormat:@"%@?api_key=%@&token=%@", SMKLastFMHTTClientBaseURL, self.APIKey, token];
+	NSString *URLString = [NSString stringWithFormat:@"%@?api_key=%@&token=%@", SMKLastFMHTTPClientAuthBaseURL, self.APIKey, token];
 	return [NSURL URLWithString:URLString];
 }
 
