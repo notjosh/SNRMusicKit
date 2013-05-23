@@ -45,10 +45,12 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters
 {
-    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:parameters];
-    if (self.APIKey) params[@"api_key"] = self.APIKey;
+    NSMutableDictionary *mutableParameters = [parameters mutableCopy];
+    mutableParameters[@"api_key"] = self.APIKey;
+
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:mutableParameters];
     if (_sessionKey) params[@"sk"] = _sessionKey;
-    params[@"api_sig"] = [self _methodSignatureWithParameters:parameters];
+    params[@"api_sig"] = [self _methodSignatureWithParameters:mutableParameters];
     params[@"format"] = @"json";
     return [super requestWithMethod:method path:path parameters:params];
 }
