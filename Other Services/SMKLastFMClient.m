@@ -24,7 +24,7 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 - (id)init
 {
     if ((self = [super initWithBaseURL:[NSURL URLWithString:SMKLastFMHTTPClientBaseURL]])) {
-        [self setParameterEncoding:AFJSONParameterEncoding];
+        [self setParameterEncoding:AFFormURLParameterEncoding];
         [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
         [self setDefaultHeader:@"Accept" value:@"application/json"];
     }
@@ -45,13 +45,21 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters
 {
+    if (nil == path) {
+        path = @"";
+    }
+
+    path = [path stringByAppendingString:(NSNotFound == [path rangeOfString:@"?"].location) ? @"?format=json" : @"&format=json"];
+
     NSMutableDictionary *mutableParameters = [parameters mutableCopy];
     mutableParameters[@"api_key"] = self.APIKey;
+    if (_sessionKey) {
+        mutableParameters[@"sk"] = _sessionKey;
+    }
 
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:mutableParameters];
-    if (_sessionKey) params[@"sk"] = _sessionKey;
     params[@"api_sig"] = [self _methodSignatureWithParameters:mutableParameters];
-    params[@"format"] = @"json";
+
     return [super requestWithMethod:method path:path parameters:params];
 }
 
@@ -228,6 +236,7 @@ static NSString* const SMKLastFMServiceName = @"Last.fm";
 		[parameterString appendString:[[parameters valueForKey:key] description]];
 	}
 	[parameterString appendString:self.APISecret]; // Append secret
+    NSLog(@"last.fm parameterString: %@", parameterString);
 	return [parameterString SMK_MD5Hash]; // Create an MD5 hash
 }
 
